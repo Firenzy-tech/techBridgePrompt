@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TechBridge — Generador de prompts</title>
+<style>
+:root{--bg:#07111d;--panel:#101d2b;--panel2:#142335;--line:#26394d;--text:#f1f6fc;--muted:#9eb0c5;--blue:#2684ff;--blue2:#1267e8;--green:#2dd4a5;--purple:#9b7bff;--radius:15px}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 70% 0%,#102640 0,transparent 40%),var(--bg);color:var(--text);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.topbar{height:78px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 25px;gap:20px;background:#07111de8;position:sticky;top:0;z-index:5;backdrop-filter:blur(12px)}
+.brand{display:flex;align-items:center;gap:13px}.logo{font-size:34px;color:var(--green);font-weight:900;line-height:1}.brand h1{margin:0;font-size:25px;letter-spacing:-.7px}.brand p{margin:0;color:var(--muted);font-size:12px}.tagline{text-align:right;color:#dce8f6}.tagline small{display:block;color:var(--muted)}
+.layout{display:grid;grid-template-columns:220px minmax(420px,1fr) minmax(350px,440px);min-height:calc(100vh - 78px)}
+.sidebar{border-right:1px solid var(--line);padding:19px 13px;display:flex;flex-direction:column;gap:5px}.navitem{border:1px solid transparent;background:transparent;color:var(--text);text-align:left;padding:12px 13px;border-radius:10px;display:flex;gap:12px;align-items:flex-start}.navitem .ico{font-size:20px;width:25px;text-align:center}.navitem small{display:block;color:var(--muted);font-size:12px}.navitem.active{background:#102842;border-color:#173c63;box-shadow:inset 3px 0 var(--blue)}.how{margin-top:auto;background:var(--panel);border:1px solid var(--line);padding:15px;border-radius:12px}.how h3{margin:0 0 10px}.how p{color:var(--muted);font-size:12px;margin:9px 0}.num{display:inline-grid;place-items:center;border-radius:50%;width:22px;height:22px;background:#25374d;color:#dbe8f7;margin-right:7px;font-weight:700}
+main{padding:24px;min-width:0}.heading h2{font-size:26px;margin:0 0 4px;letter-spacing:-.6px}.heading p{margin:0 0 16px;color:var(--muted);max-width:720px}
+.section{background:linear-gradient(135deg,#111f2e,#0e1a28);border:1px solid #203246;border-radius:var(--radius);padding:15px;margin-bottom:12px}.sectionhead{display:flex;align-items:center;gap:10px;margin:0 0 13px;font-size:16px}.step{background:linear-gradient(145deg,#2789ff,#0860df);width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-weight:800}
+.techrow{display:grid;grid-template-columns:1fr 32px 1fr;gap:12px;align-items:end}.field label{display:block;font-size:12px;color:#dbe6f2;margin:0 0 6px}.field select,.field input,.field textarea{width:100%;color:var(--text);background:#081420;border:1px solid #34485d;border-radius:9px;padding:11px;outline:none}.field select:focus,.field input:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px #2684ff24}.swap{text-align:center;font-size:23px;color:#a8bdd3;padding-bottom:7px}.detailgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.choice{position:relative;display:block;background:#172535;border:1px solid #34465a;border-radius:11px;padding:12px;min-height:84px;cursor:pointer}.choice input{position:absolute;right:10px;top:10px;accent-color:var(--blue)}.choice strong{display:block;padding-right:16px;font-size:13px}.choice span{display:block;color:var(--muted);font-size:11px;margin-top:4px}.choice:has(input:checked){border-color:var(--blue);background:#122b49;box-shadow:0 0 0 1px var(--blue)}
+.topics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.topic{border:1px solid #34465a;border-radius:10px;padding:11px 9px;background:#172535;text-align:left;color:var(--text);min-height:86px;position:relative}.topic .ticon{font-size:19px;display:block;margin-bottom:5px}.topic strong{display:block;font-size:11px;line-height:1.35}.topic small{display:block;color:var(--muted);font-size:10px;line-height:1.35;margin-top:4px}.topic.selected{border:1.5px solid var(--blue);background:#112b4b}.topic.selected:after{content:"✓";position:absolute;right:8px;top:6px;color:#fff;background:var(--blue);border-radius:50%;width:17px;height:17px;text-align:center;font-size:11px}
+.context textarea{min-height:64px;resize:vertical}.primary{border:0;border-radius:10px;background:linear-gradient(100deg,#2185ff,#1266e8);color:white;font-weight:750;padding:13px 18px;width:100%;font-size:15px;box-shadow:0 6px 18px #0864df2a}.primary:hover{filter:brightness(1.08)}.note{color:var(--muted);font-size:11px;margin-top:8px}
+.right{border-left:1px solid var(--line);padding:19px 14px;background:#08131f70;min-width:0}.rightcard{background:linear-gradient(145deg,#111f2e,#0c1825);border:1px solid #23374b;border-radius:13px;padding:13px;margin-bottom:12px}.righthead{display:flex;justify-content:space-between;align-items:center;gap:10px}.righthead h3{margin:0;font-size:17px}.righthead button{background:var(--blue);color:#fff;border:0;border-radius:8px;padding:8px 12px;font-weight:700}.sub{color:var(--muted);font-size:11px;margin:4px 0 10px}.promptbox{white-space:pre-wrap;overflow-wrap:anywhere;background:#07111c;border:1px solid #2b4055;border-radius:10px;padding:13px;min-height:290px;max-height:510px;overflow:auto;font:12px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;color:#d8e5f4}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.action{background:#1a2939;border:1px solid #34485d;border-radius:9px;color:#f0f6fc;text-align:left;padding:11px;font-size:12px}.action:hover{border-color:var(--blue)}.examples h3{margin:0 0 5px}.example{width:100%;text-align:left;border:1px solid #293d51;background:#152435;color:var(--text);border-radius:9px;padding:10px;margin-top:7px}.example small{display:block;color:var(--muted)}.status{font-size:12px;color:var(--green);min-height:18px;margin-top:7px}.saved-list{color:var(--muted);font-size:12px}.saved-entry{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}.saved-entry button{background:transparent;border:0;color:#8dbdff}
+footer{color:#72869c;text-align:center;font-size:11px;padding:8px 0 20px}
+@media(max-width:1150px){.layout{grid-template-columns:190px minmax(0,1fr)}.right{grid-column:2;border-left:0;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:12px}.rightcard{margin:0}.rightcard:first-child{grid-column:1/-1}.sidebar{grid-row:1 / span 2}.topics{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.topbar{height:auto;padding:13px 16px}.tagline{display:none}.layout{display:block}.sidebar{display:none}main{padding:16px}.right{display:block;padding:14px;border-left:0}.rightcard{margin-bottom:12px}.techrow{grid-template-columns:1fr}.swap{transform:rotate(90deg);padding:0}.detailgrid{grid-template-columns:1fr}.topics{grid-template-columns:repeat(2,minmax(0,1fr))}.heading h2{font-size:23px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+ <div class="brand"><div class="logo">➜</div><div><h1>TechBridge</h1><p>Generador de prompts para transferir conocimientos</p></div></div>
+ <div class="tagline">Pasa de una tecnología a otra sin empezar desde cero.<small>Selecciona, configura y genera prompts a tu medida.</small></div>
+</header>
+<div class="layout">
+ <aside class="sidebar">
+  <button class="navitem active" data-scroll="builder"><span class="ico">⌂</span><span>Inicio<small>Generar prompt</small></span></button>
+  <button class="navitem" data-preset="compare"><span class="ico">⇄</span><span>Comparar tecnologías<small>Ver diferencias y equivalencias</small></span></button>
+  <button class="navitem" data-scroll="examples"><span class="ico">▤</span><span>Plantillas rápidas<small>Prompts predefinidos</small></span></button>
+  <button class="navitem" data-preset="complete"><span class="ico">◇</span><span>Guías por etapas<small>Del inicio a producción</small></span></button>
+  <button class="navitem" data-scroll="saved"><span class="ico">▧</span><span>Mis prompts<small>Guardar y reutilizar</small></span></button>
+  <button class="navitem" data-scroll="resources"><span class="ico">ⓘ</span><span>Recursos<small>Cómo funciona</small></span></button>
+  <div class="how" id="resources"><h3>¿Cómo funciona?</h3><p><span class="num">1</span>Elige tu tecnología actual</p><p><span class="num">2</span>Elige la tecnología de destino</p><p><span class="num">3</span>Define qué necesitas</p><p><span class="num">4</span>Genera y copia tu prompt</p><p><span class="num">5</span>Úsalo en tu IA favorita</p></div>
+ </aside>
+ <main id="builder">
+  <div class="heading"><h2>Generador de prompt personalizado</h2><p>Selecciona las tecnologías y lo que necesitas. TechBridge construirá un prompt enfocado en las diferencias que importan para alguien que ya sabe programar.</p></div>
+  <section class="section">
+   <h3 class="sectionhead"><span class="step">1</span>Tecnologías</h3>
+   <div class="techrow">
+    <div class="field"><label for="source">Tecnología que dominas (origen)</label><select id="source"><option value="">Selecciona una tecnología</option>
+<optgroup label="Backend — .NET">
+<option selected>C# / .NET</option><option>C# / ASP.NET Core Web API</option><option>C# / ASP.NET Core MVC</option><option>C# / Blazor Server</option><option>C# / Blazor WebAssembly</option><option>C# / Entity Framework Core</option><option>C# / .NET MAUI</option><option>F# / .NET</option><option>VB.NET / .NET</option>
+</optgroup>
+<optgroup label="Backend — Java y JVM">
+<option>Java / Spring Boot</option><option>Java / Spring MVC</option><option>Java / Spring WebFlux</option><option>Java / Spring Data JPA</option><option>Java / Hibernate</option><option>Java / Jakarta EE</option><option>Java / Quarkus</option><option>Java / Micronaut</option><option>Java / Vert.x</option><option>Kotlin / Spring Boot</option><option>Kotlin / Ktor</option><option>Scala / Play Framework</option><option>Scala / Akka</option><option>Groovy / Grails</option>
+</optgroup>
+<optgroup label="Backend — Python">
+<option>Python / FastAPI</option><option>Python / Django</option><option>Python / Flask</option><option>Python / Django REST Framework</option><option>Python / SQLAlchemy</option><option>Python / Pydantic</option><option>Python / Celery</option><option>Python / asyncio</option><option>Python / Litestar</option>
+</optgroup>
+<optgroup label="Backend — JavaScript y TypeScript">
+<option>JavaScript / Node.js</option><option>TypeScript / Node.js</option><option>TypeScript / NestJS</option><option>JavaScript / Express.js</option><option>TypeScript / Express.js</option><option>TypeScript / Fastify</option><option>TypeScript / Koa</option><option>TypeScript / Hono</option><option>TypeScript / AdonisJS</option><option>JavaScript / Deno</option><option>TypeScript / Bun</option>
+</optgroup>
+<optgroup label="Backend — PHP">
+<option>PHP / Laravel</option><option>PHP / Symfony</option><option>PHP / CodeIgniter</option><option>PHP / Slim</option><option>PHP / Laminas</option>
+</optgroup>
+<optgroup label="Backend — otros lenguajes">
+<option>Go / Gin</option><option>Go / Fiber</option><option>Go / Echo</option><option>Go / net/http</option><option>Rust / Actix Web</option><option>Rust / Axum</option><option>Rust / Rocket</option><option>Ruby / Ruby on Rails</option><option>Ruby / Sinatra</option><option>Elixir / Phoenix</option><option>Erlang / Cowboy</option><option>C++ / Drogon</option><option>C++ / Crow</option><option>Dart / Serverpod</option><option>Swift / Vapor</option>
+</optgroup>
+<optgroup label="Frontend — JavaScript y TypeScript">
+<option>JavaScript / React</option><option>TypeScript / React</option><option>TypeScript / Next.js</option><option>TypeScript / Remix</option><option>JavaScript / Vue</option><option>TypeScript / Nuxt</option><option>TypeScript / Angular</option><option>TypeScript / Svelte</option><option>TypeScript / SvelteKit</option><option>TypeScript / SolidJS</option><option>TypeScript / Astro</option><option>JavaScript / jQuery</option><option>JavaScript / Lit</option><option>JavaScript / Qwik</option><option>JavaScript / Alpine.js</option><option>HTML / CSS / JavaScript nativo</option><option>TypeScript / Web Components</option>
+</optgroup>
+<optgroup label="Frontend — estilos y componentes">
+<option>CSS / Sass</option><option>CSS / Tailwind CSS</option><option>CSS / Bootstrap</option><option>CSS / Bulma</option><option>React / Material UI</option><option>React / Chakra UI</option><option>Angular / Angular Material</option><option>Vue / Vuetify</option><option>Blazor / MudBlazor</option><option>React / shadcn/ui</option>
+</optgroup>
+<optgroup label="Aplicaciones móviles y multiplataforma">
+<option>React Native</option><option>React Native / Expo</option><option>Flutter / Dart</option><option>Android / Kotlin</option><option>Android / Java</option><option>iOS / Swift / SwiftUI</option><option>iOS / UIKit</option><option>.NET MAUI</option><option>Ionic / Angular</option><option>Ionic / React</option><option>Capacitor / TypeScript</option><option>Kotlin Multiplatform</option><option>NativeScript</option><option>Unity / C#</option><option>Unreal Engine / C++</option>
+</optgroup>
+<optgroup label="Bases de datos relacionales">
+<option>SQL Server / T-SQL</option><option>PostgreSQL / SQL</option><option>MySQL / SQL</option><option>MariaDB / SQL</option><option>Oracle Database / PL/SQL</option><option>SQLite / SQL</option><option>IBM Db2 / SQL</option><option>Firebird / SQL</option>
+</optgroup>
+<optgroup label="Bases de datos NoSQL y búsqueda">
+<option>MongoDB</option><option>Redis</option><option>Apache Cassandra</option><option>Apache CouchDB</option><option>Amazon DynamoDB</option><option>Firebase / Firestore</option><option>Neo4j / Cypher</option><option>Elasticsearch</option><option>OpenSearch</option><option>InfluxDB / Flux</option><option>ClickHouse / SQL</option><option>DuckDB / SQL</option>
+</optgroup>
+<optgroup label="ORM y acceso a datos">
+<option>.NET / Entity Framework Core</option><option>.NET / Dapper</option><option>Java / JPA / Hibernate</option><option>Java / jOOQ</option><option>Python / SQLAlchemy</option><option>Python / Django ORM</option><option>TypeScript / Prisma</option><option>TypeScript / Drizzle ORM</option><option>TypeScript / TypeORM</option><option>PHP / Doctrine ORM</option><option>Go / GORM</option><option>Ruby / Active Record</option>
+</optgroup>
+<optgroup label="APIs y comunicación">
+<option>REST API / OpenAPI</option><option>GraphQL</option><option>gRPC / Protocol Buffers</option><option>SOAP / WSDL</option><option>WebSockets</option><option>Server-Sent Events (SSE)</option><option>Apache Kafka</option><option>RabbitMQ</option><option>Azure Service Bus</option><option>MassTransit / .NET</option>
+</optgroup>
+<optgroup label="DevOps, nube y contenedores">
+<option>Docker</option><option>Kubernetes</option><option>Terraform / IaC</option><option>Ansible</option><option>GitHub Actions / CI/CD</option><option>GitLab CI/CD</option><option>Jenkins</option><option>Azure DevOps</option><option>AWS / Cloud Development</option><option>Microsoft Azure / Cloud Development</option><option>Google Cloud / Cloud Development</option><option>Serverless / AWS Lambda</option><option>Linux / Bash</option><option>PowerShell</option>
+</optgroup>
+<optgroup label="Pruebas y calidad">
+<option>.NET / xUnit</option><option>.NET / NUnit</option><option>Java / JUnit</option><option>Java / TestNG</option><option>Python / pytest</option><option>JavaScript / Jest</option><option>TypeScript / Vitest</option><option>JavaScript / Playwright</option><option>JavaScript / Cypress</option><option>Java / Cucumber</option><option>SonarQube / Code Quality</option>
+</optgroup>
+<optgroup label="Datos e inteligencia artificial">
+<option>Python / NumPy</option><option>Python / Pandas</option><option>Python / Polars</option><option>Python / scikit-learn</option><option>Python / PyTorch</option><option>Python / TensorFlow</option><option>Python / Keras</option><option>Python / Hugging Face Transformers</option><option>Python / LangChain</option><option>Python / LlamaIndex</option><option>Apache Spark / PySpark</option><option>R / Tidyverse</option><option>R / Shiny</option><option>Julia / Data Science</option>
+</optgroup>
+<optgroup label="Otros ecosistemas">
+<option>Salesforce / Apex</option><option>Salesforce / Lightning Web Components</option><option>WordPress / PHP</option><option>Power Platform / Power Apps</option><option>Power Platform / Power Automate</option><option>ABAP / SAP</option><option>Solidity / Ethereum Smart Contracts</option><option>MATLAB</option><option>LabVIEW</option>
+</optgroup>
+<option>Otro / personalizado</option></select></div>
+    <div class="swap">⇄</div>
+    <div class="field"><label for="target">Tecnología a la que quieres migrar (destino)</label><select id="target"><option value="">Selecciona una tecnología</option>
+<optgroup label="Backend — .NET">
+<option>C# / .NET</option><option>C# / ASP.NET Core Web API</option><option>C# / ASP.NET Core MVC</option><option>C# / Blazor Server</option><option>C# / Blazor WebAssembly</option><option>C# / Entity Framework Core</option><option>C# / .NET MAUI</option><option>F# / .NET</option><option>VB.NET / .NET</option>
+</optgroup>
+<optgroup label="Backend — Java y JVM">
+<option>Java / Spring Boot</option><option>Java / Spring MVC</option><option>Java / Spring WebFlux</option><option>Java / Spring Data JPA</option><option>Java / Hibernate</option><option>Java / Jakarta EE</option><option>Java / Quarkus</option><option>Java / Micronaut</option><option>Java / Vert.x</option><option>Kotlin / Spring Boot</option><option>Kotlin / Ktor</option><option>Scala / Play Framework</option><option>Scala / Akka</option><option>Groovy / Grails</option>
+</optgroup>
+<optgroup label="Backend — Python">
+<option selected>Python / FastAPI</option><option>Python / Django</option><option>Python / Flask</option><option>Python / Django REST Framework</option><option>Python / SQLAlchemy</option><option>Python / Pydantic</option><option>Python / Celery</option><option>Python / asyncio</option><option>Python / Litestar</option>
+</optgroup>
+<optgroup label="Backend — JavaScript y TypeScript">
+<option>JavaScript / Node.js</option><option>TypeScript / Node.js</option><option>TypeScript / NestJS</option><option>JavaScript / Express.js</option><option>TypeScript / Express.js</option><option>TypeScript / Fastify</option><option>TypeScript / Koa</option><option>TypeScript / Hono</option><option>TypeScript / AdonisJS</option><option>JavaScript / Deno</option><option>TypeScript / Bun</option>
+</optgroup>
+<optgroup label="Backend — PHP">
+<option>PHP / Laravel</option><option>PHP / Symfony</option><option>PHP / CodeIgniter</option><option>PHP / Slim</option><option>PHP / Laminas</option>
+</optgroup>
+<optgroup label="Backend — otros lenguajes">
+<option>Go / Gin</option><option>Go / Fiber</option><option>Go / Echo</option><option>Go / net/http</option><option>Rust / Actix Web</option><option>Rust / Axum</option><option>Rust / Rocket</option><option>Ruby / Ruby on Rails</option><option>Ruby / Sinatra</option><option>Elixir / Phoenix</option><option>Erlang / Cowboy</option><option>C++ / Drogon</option><option>C++ / Crow</option><option>Dart / Serverpod</option><option>Swift / Vapor</option>
+</optgroup>
+<optgroup label="Frontend — JavaScript y TypeScript">
+<option>JavaScript / React</option><option>TypeScript / React</option><option>TypeScript / Next.js</option><option>TypeScript / Remix</option><option>JavaScript / Vue</option><option>TypeScript / Nuxt</option><option>TypeScript / Angular</option><option>TypeScript / Svelte</option><option>TypeScript / SvelteKit</option><option>TypeScript / SolidJS</option><option>TypeScript / Astro</option><option>JavaScript / jQuery</option><option>JavaScript / Lit</option><option>JavaScript / Qwik</option><option>JavaScript / Alpine.js</option><option>HTML / CSS / JavaScript nativo</option><option>TypeScript / Web Components</option>
+</optgroup>
+<optgroup label="Frontend — estilos y componentes">
+<option>CSS / Sass</option><option>CSS / Tailwind CSS</option><option>CSS / Bootstrap</option><option>CSS / Bulma</option><option>React / Material UI</option><option>React / Chakra UI</option><option>Angular / Angular Material</option><option>Vue / Vuetify</option><option>Blazor / MudBlazor</option><option>React / shadcn/ui</option>
+</optgroup>
+<optgroup label="Aplicaciones móviles y multiplataforma">
+<option>React Native</option><option>React Native / Expo</option><option>Flutter / Dart</option><option>Android / Kotlin</option><option>Android / Java</option><option>iOS / Swift / SwiftUI</option><option>iOS / UIKit</option><option>.NET MAUI</option><option>Ionic / Angular</option><option>Ionic / React</option><option>Capacitor / TypeScript</option><option>Kotlin Multiplatform</option><option>NativeScript</option><option>Unity / C#</option><option>Unreal Engine / C++</option>
+</optgroup>
+<optgroup label="Bases de datos relacionales">
+<option>SQL Server / T-SQL</option><option>PostgreSQL / SQL</option><option>MySQL / SQL</option><option>MariaDB / SQL</option><option>Oracle Database / PL/SQL</option><option>SQLite / SQL</option><option>IBM Db2 / SQL</option><option>Firebird / SQL</option>
+</optgroup>
+<optgroup label="Bases de datos NoSQL y búsqueda">
+<option>MongoDB</option><option>Redis</option><option>Apache Cassandra</option><option>Apache CouchDB</option><option>Amazon DynamoDB</option><option>Firebase / Firestore</option><option>Neo4j / Cypher</option><option>Elasticsearch</option><option>OpenSearch</option><option>InfluxDB / Flux</option><option>ClickHouse / SQL</option><option>DuckDB / SQL</option>
+</optgroup>
+<optgroup label="ORM y acceso a datos">
+<option>.NET / Entity Framework Core</option><option>.NET / Dapper</option><option>Java / JPA / Hibernate</option><option>Java / jOOQ</option><option>Python / SQLAlchemy</option><option>Python / Django ORM</option><option>TypeScript / Prisma</option><option>TypeScript / Drizzle ORM</option><option>TypeScript / TypeORM</option><option>PHP / Doctrine ORM</option><option>Go / GORM</option><option>Ruby / Active Record</option>
+</optgroup>
+<optgroup label="APIs y comunicación">
+<option>REST API / OpenAPI</option><option>GraphQL</option><option>gRPC / Protocol Buffers</option><option>SOAP / WSDL</option><option>WebSockets</option><option>Server-Sent Events (SSE)</option><option>Apache Kafka</option><option>RabbitMQ</option><option>Azure Service Bus</option><option>MassTransit / .NET</option>
+</optgroup>
+<optgroup label="DevOps, nube y contenedores">
+<option>Docker</option><option>Kubernetes</option><option>Terraform / IaC</option><option>Ansible</option><option>GitHub Actions / CI/CD</option><option>GitLab CI/CD</option><option>Jenkins</option><option>Azure DevOps</option><option>AWS / Cloud Development</option><option>Microsoft Azure / Cloud Development</option><option>Google Cloud / Cloud Development</option><option>Serverless / AWS Lambda</option><option>Linux / Bash</option><option>PowerShell</option>
+</optgroup>
+<optgroup label="Pruebas y calidad">
+<option>.NET / xUnit</option><option>.NET / NUnit</option><option>Java / JUnit</option><option>Java / TestNG</option><option>Python / pytest</option><option>JavaScript / Jest</option><option>TypeScript / Vitest</option><option>JavaScript / Playwright</option><option>JavaScript / Cypress</option><option>Java / Cucumber</option><option>SonarQube / Code Quality</option>
+</optgroup>
+<optgroup label="Datos e inteligencia artificial">
+<option>Python / NumPy</option><option>Python / Pandas</option><option>Python / Polars</option><option>Python / scikit-learn</option><option>Python / PyTorch</option><option>Python / TensorFlow</option><option>Python / Keras</option><option>Python / Hugging Face Transformers</option><option>Python / LangChain</option><option>Python / LlamaIndex</option><option>Apache Spark / PySpark</option><option>R / Tidyverse</option><option>R / Shiny</option><option>Julia / Data Science</option>
+</optgroup>
+<optgroup label="Otros ecosistemas">
+<option>Salesforce / Apex</option><option>Salesforce / Lightning Web Components</option><option>WordPress / PHP</option><option>Power Platform / Power Apps</option><option>Power Platform / Power Automate</option><option>ABAP / SAP</option><option>Solidity / Ethereum Smart Contracts</option><option>MATLAB</option><option>LabVIEW</option>
+</optgroup>
+<option>Otro / personalizado</option></select></div>
+   </div>
+   <div class="field" id="customWrap" style="display:none;margin-top:10px"><label for="custom">Especifica tecnología o versión</label><input id="custom" placeholder="Ej. Kotlin con Ktor 3.x"></div>
+  </section>
+  <section class="section">
+   <h3 class="sectionhead"><span class="step">2</span>Nivel de detalle</h3>
+   <div class="detailgrid">
+    <label class="choice"><input type="radio" name="detail" value="essential"><strong>Solo lo esencial</strong><span>Lo mínimo para empezar rápido.</span></label>
+    <label class="choice"><input type="radio" name="detail" value="areas" checked><strong>Guía por áreas</strong><span>Elige solo los temas que necesitas.</span></label>
+    <label class="choice"><input type="radio" name="detail" value="complete"><strong>Guía completa</strong><span>Del inicio hasta producción.</span></label>
+   </div>
+  </section>
+  <section class="section">
+   <h3 class="sectionhead"><span class="step">3</span>¿Qué necesitas?</h3>
+   <p style="margin:-7px 0 12px;color:var(--muted);font-size:12px">Selecciona una o varias áreas. Combínalas según tu necesidad actual.</p>
+   <div class="topics" id="topics">
+    <button class="topic selected" data-topic="start"><span class="ticon">▷</span><strong>Cómo iniciar</strong><small>Instalación, entorno y primer proyecto</small></button>
+    <button class="topic" data-topic="syntax"><span class="ticon">&lt;/&gt;</span><strong>Lenguaje y sintaxis</strong><small>Variables, métodos, clases y tipos</small></button>
+    <button class="topic" data-topic="dependencies"><span class="ticon">⬡</span><strong>Dependencias</strong><small>Paquetes y configuración</small></button>
+    <button class="topic" data-topic="structure"><span class="ticon">▱</span><strong>Estructura del proyecto</strong><small>Carpetas, archivos y convenciones</small></button>
+    <button class="topic" data-topic="database"><span class="ticon">▤</span><strong>Base de datos</strong><small>Conexión, ORM y migraciones</small></button>
+    <button class="topic" data-topic="framework"><span class="ticon">⚙</span><strong>Framework principal</strong><small>Componentes y ciclo de vida</small></button>
+    <button class="topic" data-topic="practices"><span class="ticon">♧</span><strong>Buenas prácticas</strong><small>Calidad y mantenibilidad</small></button>
+    <button class="topic" data-topic="errors"><span class="ticon">⚠</span><strong>Errores comunes</strong><small>Qué evitar durante la transición</small></button>
+    <button class="topic" data-topic="testing"><span class="ticon">⚗</span><strong>Pruebas</strong><small>Unitarias, integración y mocks</small></button>
+    <button class="topic" data-topic="deploy"><span class="ticon">↗</span><strong>Despliegue</strong><small>Build, empaquetado y producción</small></button>
+    <button class="topic" data-topic="compare"><span class="ticon">⇄</span><strong>Comparación directa</strong><small>Tabla de equivalencias</small></button>
+    <button class="topic" data-topic="all"><span class="ticon">▤</span><strong>Todo lo anterior</strong><small>Homologación completa</small></button>
+   </div>
+  </section>
+  <section class="section context">
+   <h3 class="sectionhead"><span class="step">4</span>Contexto adicional <span style="font-weight:400;color:var(--muted);font-size:12px">(opcional)</span></h3>
+   <div class="field"><textarea id="context" placeholder="Ej. Necesito desarrollar una API REST con PostgreSQL, autenticación JWT y arquitectura por capas. Uso Windows y VS Code."></textarea></div>
+   <button class="primary" id="generate" style="margin-top:12px">✦ Generar prompt <span aria-hidden="true">→</span></button>
+   <div class="note">La generación se realiza localmente en tu navegador. No se envían datos a un servidor.</div>
+  </section>
+  <footer>TechBridge · Prototipo local · Revisa siempre los comandos según la versión y documentación oficial.</footer>
+ </main>
+ <aside class="right">
+  <section class="rightcard">
+   <div class="righthead"><h3>Prompt generado</h3><button id="copyTop">▢ Copiar</button></div>
+   <p class="sub">Copia el prompt y úsalo en ChatGPT, Claude, Gemini u otra IA.</p>
+   <div class="promptbox" id="prompt" aria-live="polite"></div><div class="status" id="status" role="status"></div>
+  </section>
+  <section class="rightcard">
+   <div class="righthead"><h3>Acciones rápidas</h3></div>
+   <div class="actions" style="margin-top:10px">
+    <button class="action" id="copy">▢ &nbsp; Copiar prompt</button>
+    <button class="action" id="save">♧ &nbsp; Guardar en mis prompts</button>
+    <button class="action" id="download">⇩ &nbsp; Descargar .txt</button>
+    <button class="action" id="openAI">↗ &nbsp; Abrir ChatGPT</button>
+   </div>
+  </section>
+  <section class="rightcard examples" id="examples">
+   <div class="righthead"><h3>Ejemplos de prompts</h3><button id="reset" style="background:transparent;color:#8dbdff;padding:5px">Restablecer</button></div>
+   <p class="sub">Prueba plantillas predefinidas:</p>
+   <button class="example" data-example="start"><strong>Iniciar en Python desde C#</strong><small>Entorno, proyecto y conceptos clave</small></button>
+   <button class="example" data-example="database"><strong>Conectar a una base de datos</strong><small>Comparación de ORMs y ejemplos</small></button>
+   <button class="example" data-example="practices"><strong>Buenas prácticas de desarrollo</strong><small>Convenciones y recomendaciones</small></button>
+   <button class="example" data-example="compare"><strong>Comparar dos ecosistemas</strong><small>Equivalencias y diferencias críticas</small></button>
+  </section>
+  <section class="rightcard" id="saved">
+   <div class="righthead"><h3>Mis prompts guardados</h3><button id="clearSaved" style="background:transparent;color:#8dbdff;padding:5px">Vaciar</button></div>
+   <div class="saved-list" id="savedList">Todavía no has guardado prompts.</div>
+  </section>
+ </aside>
+</div>
+<script>
+const topicInfo={
+ start:{name:"Cómo iniciar",detail:"instalación, requisitos, configuración del entorno, creación del proyecto, punto de entrada y ejecución"},
+ syntax:{name:"Lenguaje y sintaxis",detail:"diferencias semánticas y sintácticas relevantes: tipos, variables, funciones, clases, interfaces, errores, nulabilidad y asincronía"},
+ dependencies:{name:"Dependencias",detail:"gestor de paquetes, manifiestos, instalación, versiones, entornos aislados, lockfiles y resolución de dependencias"},
+ structure:{name:"Estructura del proyecto",detail:"carpetas, módulos, imports, convenciones de nombres, configuración y organización de responsabilidades"},
+ database:{name:"Base de datos",detail:"configuración segura de conexión, drivers, ORM, entidades, consultas, migraciones, transacciones y pruebas"},
+ framework:{name:"Framework principal",detail:"modelo de ejecución, enrutamiento, componentes, inyección de dependencias, ciclo de vida y configuración"},
+ practices:{name:"Buenas prácticas",detail:"principios de diseño, convenciones idiomáticas, mantenibilidad, seguridad, calidad y decisiones recomendadas en el ecosistema destino"},
+ errors:{name:"Errores comunes",detail:"errores de transferencia desde el origen, síntomas, diagnóstico, solución y prevención"},
+ testing:{name:"Pruebas",detail:"framework de pruebas, pruebas unitarias y de integración, dobles de prueba, cobertura y ejecución desde consola"},
+ deploy:{name:"Despliegue",detail:"build o empaquetado, configuración por ambiente, secretos, logs, contenedores, CI/CD y despliegue"},
+ compare:{name:"Comparación directa",detail:"tabla de equivalencias funcionales, parciales y conceptos sin equivalente directo, con riesgos y prioridad"}
+};
+const $=id=>document.getElementById(id);
+let lastPrompt="";
+function selectedTopics(){return [...document.querySelectorAll(".topic.selected")].map(b=>b.dataset.topic)}
+function resolveTech(id){const el=$(id);return el.value==="Otro / personalizado" ? (($("custom").value||"").trim()||"Otro / personalizado (especificar)") : (el.value||"No especificada");}
+function updateCustom(){const show=$("source").value==="Otro / personalizado"||$("target").value==="Otro / personalizado";$("customWrap").style.display=show?"block":"none";}
+function getDetail(){return document.querySelector('input[name="detail"]:checked').value}
+function buildPrompt(){
+ const source=resolveTech("source"), target=resolveTech("target"), detail=getDetail(), topics=selectedTopics();
+ const selected=topics.includes("all")||detail==="complete"?Object.keys(topicInfo):topics.filter(t=>topicInfo[t]);
+ const context=$("context").value.trim();
+ const detailText={essential:"Prioriza exclusivamente lo imprescindible para comenzar con seguridad. Sé conciso y no expliques fundamentos de programación que ya conoce un desarrollador experimentado.",areas:"Desarrolla únicamente las áreas seleccionadas, con suficiente detalle práctico para poder aplicar lo aprendido.",complete:"Construye una guía estructurada desde la puesta en marcha hasta pruebas, calidad y producción. Ordena los temas por dependencias y prioridad."}[detail];
+ const list=selected.map((t,i)=>`${i+1}. ${topicInfo[t].name}: ${topicInfo[t].detail}.`).join("\n");
+ return `Actúa como arquitecto de software senior y especialista en transferencia de conocimiento entre ecosistemas tecnológicos.\n\nCONTEXTO DEL DESARROLLADOR\n- Tecnología de origen que ya conoce: ${source}.\n- Tecnología de destino: ${target}.\n- Nivel asumido: desarrollador con experiencia práctica en programación; no necesita aprender qué es programar desde cero.\n- Objetivo: aprovechar sus conocimientos previos y aprender las diferencias que realmente importan para trabajar correctamente en el ecosistema destino.\n\nOBJETIVO DE ESTA CONSULTA\nAyúdame con una guía comparativa enfocada en:\n${list||"Identificar las diferencias más importantes para empezar a trabajar en la tecnología destino."}\n\nINSTRUCCIONES DE ANÁLISIS\n1. No repitas fundamentos generales que ya conoce, salvo que su significado o comportamiento cambie.\n2. Para cada concepto relevante, indica si su equivalente es funcionalmente similar, parcial o no existe de forma directa.\n3. Separa diferencias de lenguaje, herramientas, configuración, arquitectura, ejecución y convenciones.\n4. Incluye comandos reales para crear, ejecutar, probar o configurar cuando correspondan. Indica sistema operativo, versión o prerrequisitos si afectan al resultado.\n5. Explica los errores que podría cometer al trasladar hábitos de ${source} a ${target}: supuesto incorrecto, síntoma, diagnóstico, solución y prevención.\n6. Distingue lo obligatorio de lo opcional y las reglas del lenguaje de las convenciones recomendadas.\n7. No inventes equivalencias ni comandos. Si una característica depende de la versión, acláralo y recomienda verificar la documentación oficial actual.\n8. Utiliza ejemplos mínimos y prácticos; cuando sea útil, muestra el equivalente aproximado en el origen y la solución idiomática en el destino.\n9. Prioriza lo que desbloquea el trabajo real y evita convertir la respuesta en un curso genérico.\n\nNIVEL DE DETALLE\n${detailText}\n\nFORMATO DE RESPUESTA\n- Resumen de lo que puedo reutilizar.\n- Tabla de equivalencias y diferencias.\n- Pasos, comandos o ejemplos prácticos para las áreas seleccionadas.\n- Errores de transferencia y cómo prevenirlos.\n- Lista de comprobación para verificar que puedo empezar.\n- Próximo paso recomendado, limitado a lo que todavía necesito aprender.\n\n${context?`CONTEXTO ADICIONAL DEL PROYECTO\n${context}\n\nAdapta los ejemplos y recomendaciones a este contexto, sin asumir datos que no he proporcionado.`:"No inventes requisitos de proyecto que no he indicado. Si un dato es esencial, formula una pregunta concreta antes de dar instrucciones que dependan de él."}\n\nMantén el foco en la transferencia de conocimientos: no necesito volver a aprender a programar, necesito identificar y dominar las diferencias que me permitirán ser productivo en ${target}.`;
+}
+function generate(){lastPrompt=buildPrompt();$("prompt").textContent=lastPrompt;$("status").textContent="Prompt actualizado. Puedes copiarlo o guardarlo."; }
+async function copyPrompt(){if(!lastPrompt)generate();try{await navigator.clipboard.writeText(lastPrompt);$("status").textContent="✓ Prompt copiado al portapapeles."}catch(e){const ta=document.createElement("textarea");ta.value=lastPrompt;document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy")}catch(_){}ta.remove();$("status").textContent=ok?"✓ Prompt copiado al portapapeles.":"No se pudo copiar automáticamente. Selecciona el texto y cópialo.";}}
+function setTopics(keys){document.querySelectorAll(".topic").forEach(b=>b.classList.toggle("selected",keys.includes(b.dataset.topic)));generate()}
+document.querySelectorAll(".topic").forEach(b=>b.addEventListener("click",()=>{if(b.dataset.topic==="all"){setTopics(["all"]);return}b.classList.toggle("selected",!b.classList.contains("selected"));document.querySelector('[name="detail"][value="areas"]').checked=true;generate()}));
+$("generate").addEventListener("click",generate);$("copy").addEventListener("click",copyPrompt);$("copyTop").addEventListener("click",copyPrompt);
+$("download").addEventListener("click",()=>{if(!lastPrompt)generate();const blob=new Blob([lastPrompt],{type:"text/plain;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="techbridge-prompt.txt";a.click();URL.revokeObjectURL(url);$("status").textContent="Descarga preparada."});
+$("openAI").addEventListener("click",()=>{if(!lastPrompt)generate();window.open("https://chatgpt.com/","_blank","noopener,noreferrer");$("status").textContent="ChatGPT abierto en otra pestaña. Copia el prompt para utilizarlo allí."});
+["source","target","context","custom"].forEach(id=>$(id).addEventListener("change",()=>{updateCustom();generate()}));$("context").addEventListener("input",generate);document.querySelectorAll('[name="detail"]').forEach(el=>el.addEventListener("change",()=>{if(getDetail()==="complete")setTopics(["all"]);else if(selectedTopics().includes("all"))setTopics(["start"]);else generate()}));
+function loadExample(name){
+ if(name==="start"){$("source").value="C# / .NET";$("target").value="Python / FastAPI";$("custom").value="";updateCustom();document.querySelector('[name="detail"][value="essential"]').checked=true;setTopics(["start","dependencies","structure","syntax","errors"]);$("context").value="Quiero construir una API REST pequeña. Prioriza entorno virtual, ejecución, estructura mínima y diferencias con .NET."}
+ if(name==="database"){document.querySelector('[name="detail"][value="areas"]').checked=true;setTopics(["database","dependencies","errors","compare"]);$("context").value="Necesito conectar una aplicación a PostgreSQL. Compara configuración, ORM, migraciones, transacciones y pruebas. No incluyas credenciales reales."}
+ if(name==="practices"){document.querySelector('[name="detail"][value="areas"]').checked=true;setTopics(["practices","structure","testing","errors"]);$("context").value="Quiero escribir código mantenible y profesional. Prioriza convenciones idiomáticas y diferencias con mi tecnología de origen."}
+ if(name==="compare"){document.querySelector('[name="detail"][value="complete"]').checked=true;setTopics(["all"]);$("context").value="Construye una tabla de equivalencias funcionales, parciales y sin equivalente directo. Prioriza los riesgos de asumir que ambas tecnologías funcionan igual."}
+ generate();window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll("[data-example]").forEach(b=>b.addEventListener("click",()=>loadExample(b.dataset.example)));
+document.querySelectorAll("[data-preset]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".navitem").forEach(n=>n.classList.remove("active"));b.classList.add("active");loadExample(b.dataset.preset==="complete"?"compare":"compare")}));
+document.querySelectorAll("[data-scroll]").forEach(b=>b.addEventListener("click",()=>{const el=$(b.dataset.scroll);if(el)el.scrollIntoView({behavior:"smooth",block:"start"});document.querySelectorAll(".navitem").forEach(n=>n.classList.remove("active"));b.classList.add("active")}));
+function getSaved(){try{return JSON.parse(localStorage.getItem("techbridgeSaved")||"[]")}catch(e){return []}}
+function renderSaved(){const saved=getSaved();$("savedList").innerHTML="";if(!saved.length){$("savedList").textContent="Todavía no has guardado prompts.";return}saved.slice().reverse().forEach((s,idx)=>{const row=document.createElement("div");row.className="saved-entry";const info=document.createElement("span");info.textContent=s.title;const actions=document.createElement("span");const load=document.createElement("button");load.textContent="Cargar";load.addEventListener("click",()=>{$("prompt").textContent=s.prompt;lastPrompt=s.prompt;$("status").textContent="Prompt guardado cargado."});const del=document.createElement("button");del.textContent="Eliminar";del.addEventListener("click",()=>{const a=getSaved();a.splice(a.length-1-idx,1);localStorage.setItem("techbridgeSaved",JSON.stringify(a));renderSaved()});actions.append(load,del);row.append(info,actions);$("savedList").append(row)})}
+$("save").addEventListener("click",()=>{if(!lastPrompt)generate();const saved=getSaved();saved.push({title:$("source").value+" → "+$("target").value+" · "+new Date().toLocaleDateString(),prompt:lastPrompt});localStorage.setItem("techbridgeSaved",JSON.stringify(saved));renderSaved();$("status").textContent="Prompt guardado en este navegador."});
+$("clearSaved").addEventListener("click",()=>{if(confirm("¿Eliminar todos los prompts guardados en este navegador?")){localStorage.removeItem("techbridgeSaved");renderSaved()}});
+$("reset").addEventListener("click",()=>{ $("source").value="C# / .NET";$("target").value="Python / FastAPI";$("custom").value="";updateCustom();$("context").value="";document.querySelector('[name="detail"][value="areas"]').checked=true;setTopics(["start"]);$("status").textContent="Configuración restablecida."});
+updateCustom();generate();renderSaved();
+</script>
+</body>
+</html>
